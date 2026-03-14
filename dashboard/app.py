@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -52,7 +52,7 @@ except Exception as e:
 # SIDEBAR NAVIGATION
 # -------------------------------------------------------------------
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to Page:", ["Data Quality Monitor", "Exploratory Data Analysis", "Business Personas", "Policy Risk Prediction Tool"])
+page = st.sidebar.radio("Go to Page:", ["Data Quality Monitor", "Exploratory Data Analysis", "Business Personas", "Policy Risk Prediction Tool", "Insurance AI Copilot"])
 
 st.sidebar.markdown("---")
 st.sidebar.info("AI-Driven Vehicle Insurance Risk Intelligence Platform")
@@ -132,7 +132,7 @@ if page == "Data Quality Monitor":
 # PAGE 2: EXPLORATORY DATA ANALYSIS
 # -------------------------------------------------------------------
 elif page == "Exploratory Data Analysis":
-    st.title("📈 Exploratory Data Analysis")
+    st.title("Exploratory Data Analysis")
     st.markdown("Explore variable distributions and their relationship with claim occurrences.")
     
     # Top Level Overview
@@ -472,7 +472,7 @@ elif page == "Policy Risk Prediction Tool":
                 with r_col1:
                     risk_label = "High Risk Driver" if pred_class == 1 else "Low Risk Driver"
                     r_color = "#cc0000" if pred_class == 1 else "#009E73"
-                    icon = "??" if pred_class == 1 else "?"
+                    icon = "⚠️" if pred_class == 1 else "✅"
 
                     st.markdown(f"<h2 style='color:{r_color};'>{risk_label} {icon}</h2>", unsafe_allow_html=True)
                     st.markdown(f"**Calculated Claim Probability:** {pred_prob:.1f}%")
@@ -510,3 +510,14 @@ elif page == "Policy Risk Prediction Tool":
                     st.plotly_chart(fig_gauge, use_container_width=True)
         else:
             st.error("Model file not found! Expected at: " + model_path)
+
+# -------------------------------------------------------------------
+# PAGE 5: INSURANCE AI COPILOT
+# -------------------------------------------------------------------
+elif page == "Insurance AI Copilot":
+    import os
+    import sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+    from genai.copilot_chatbot_page import render_copilot_page
+    render_copilot_page()
+
