@@ -1,0 +1,5 @@
+# AI-Driven Vehicle Insurance Risk Analytics Platform
+# Core dependencies for Step 1: Synthetic Data Streaming Module
+
+numpy
+pandas
