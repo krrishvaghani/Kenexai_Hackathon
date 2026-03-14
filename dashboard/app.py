@@ -82,9 +82,7 @@ if page == "Data Quality Monitor":
     
     with colA:
         missing_df = pd.DataFrame({
-            'Data Type': data.dtypes.astype(str),
-            'Missing Values': data.isna().sum(),
-            'Missing %': (data.isna().sum() / len(data) * 100).round(2)
+            'Data Type': data.dtypes.astype(str)
         })
         st.dataframe(missing_df, use_container_width=True)
 
@@ -127,6 +125,60 @@ if page == "Data Quality Monitor":
         fig_box = px.box(data, y=outlier_feature, points="outliers", color="claim_outcome_label",
                          title=f"Boxplot Distribution: {outlier_feature}")
         st.plotly_chart(fig_box, use_container_width=True)
+
+    # 4. Business Logic Validation Rules
+    st.markdown("---")
+    st.subheader("Business Logic Validation Rules")
+    
+    rules = []
+    
+    # Safely evaluate column logic if they exist (handling categorical cases if they exist as strings instead of nums)
+    if 'vehicle_age' in data.columns:
+        if pd.api.types.is_numeric_dtype(data['vehicle_age']):
+            fails = (data['vehicle_age'] < 0).sum()
+        else:
+            # If string category like "< 1 Year"
+            fails = 0 
+        rules.append({"Rule": "Vehicle Age cannot be negative", "Failures": fails})
+        
+    if 'annual_premium' in data.columns and pd.api.types.is_numeric_dtype(data['annual_premium']):
+        fails = (data['annual_premium'] <= 0).sum()
+        rules.append({"Rule": "Annual Premium must be strictly positive (> 0)", "Failures": fails})
+        
+    if 'driver_age' in data.columns:
+        if pd.api.types.is_numeric_dtype(data['driver_age']):
+            fails = (data['driver_age'] < 16).sum()
+        else:
+            fails = 0
+        rules.append({"Rule": "Driver Age must be at least 16", "Failures": fails})
+
+    if rules:
+        for r in rules:
+            if r["Failures"] == 0:
+                st.markdown(f"🟢 **PASS:** {r['Rule']} *(0 violations)*")
+            else:
+                st.markdown(f"🔴 **FAIL:** {r['Rule']} *({r['Failures']} violations detected)*")
+    else:
+        st.info("Required columns for logic checks are missing.")
+
+    # 5. Data Skewness / Class Imbalance Warning
+    st.markdown("---")
+    st.subheader("Data Skewness & Target Class Imbalance")
+    
+    if 'claim_outcome_label' in data.columns:
+        class_counts = data['claim_outcome_label'].value_counts(normalize=True) * 100
+        minority_class_pct = class_counts.min()
+        
+        col_skew1, col_skew2 = st.columns([1, 2])
+        with col_skew1:
+            st.dataframe(class_counts.round(2).astype(str) + '%', use_container_width=True)
+        with col_skew2:
+            if minority_class_pct < 20:
+                st.warning(f"⚠️ **High Class Imbalance Detected!** The minority class represents only {minority_class_pct:.2f}% of the dataset. Resampling techniques (like SMOTE) may be required for modeling.")
+            else:
+                st.success(f"✅ **Healthy Distribution.** The minority class represents {minority_class_pct:.2f}% of the dataset. No extreme class imbalance detected.")
+    else:
+        st.info("Target column 'claim_outcome_label' not found.")
 
 # -------------------------------------------------------------------
 # PAGE 2: EXPLORATORY DATA ANALYSIS
@@ -185,10 +237,53 @@ elif page == "Exploratory Data Analysis":
     num_df = data.select_dtypes(include=np.number)
     corr = num_df.corr().round(2)
     
-    fig_corr = px.imshow(corr, text_auto=True, aspect="auto", 
-                         color_continuous_scale="RdBu_r", 
+    fig_corr = px.imshow(corr, text_auto=True, aspect="auto",
+                         color_continuous_scale="RdBu_r",
                          title="Pearson Correlation Matrix")
     st.plotly_chart(fig_corr, use_container_width=True)
+
+    # 6. Interactive Feature Distributions
+    st.markdown("---")
+    st.subheader("Interactive Feature Explorer")
+    
+    st.markdown("##### Numeric Features")
+    all_num_cols = data.select_dtypes(include=np.number).columns.tolist()
+    if all_num_cols:
+        colE, colF = st.columns(2)
+        with colE:
+            selected_num = st.selectbox("Select Numeric Column:", all_num_cols, key="num_col")
+        with colF:
+            num_chart_type = st.selectbox("Select Chart Type:", ["Histogram", "Boxplot", "Line Plot"], key="num_chart")
+        
+        if num_chart_type == "Histogram":
+            fig_num = px.histogram(data, x=selected_num, title=f"Histogram of {selected_num}", color="claim_outcome_label" if "claim_outcome_label" in data.columns else None)
+        elif num_chart_type == "Boxplot":
+            fig_num = px.box(data, y=selected_num, title=f"Boxplot of {selected_num}", color="claim_outcome_label" if "claim_outcome_label" in data.columns else None)
+        else:
+            fig_num = px.line(data.sort_values(selected_num).reset_index(drop=True), y=selected_num, title=f"Line Plot of {selected_num} (Sorted)")
+        
+        st.plotly_chart(fig_num, use_container_width=True)
+
+    st.markdown("##### Categorical Features")
+    all_cat_cols = data.select_dtypes(exclude=np.number).columns.tolist()
+    if all_cat_cols:
+        colG, colH = st.columns(2)
+        with colG:
+            selected_cat = st.selectbox("Select Categorical Column:", all_cat_cols, key="cat_col")
+        with colH:
+            cat_chart_type = st.selectbox("Select Chart Type:", ["Bar Chart", "Pie Chart"], key="cat_chart")
+            
+        val_counts = data[selected_cat].value_counts().reset_index()
+        val_counts.columns = [selected_cat, 'Count']
+        
+        if cat_chart_type == "Bar Chart":
+            fig_cat = px.bar(val_counts, x=selected_cat, y='Count', title=f"Bar Chart of {selected_cat}", color=selected_cat)
+        else:
+            fig_cat = px.pie(val_counts, names=selected_cat, values='Count', title=f"Pie Chart of {selected_cat}", color=selected_cat, hole=0.3)
+            
+        st.plotly_chart(fig_cat, use_container_width=True)
+    else:
+        st.info("No categorical columns found in the dataset to visualize.")
 
 
 
