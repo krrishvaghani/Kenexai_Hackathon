@@ -71,9 +71,9 @@ def retrain_model():
     y_pred = model.predict(X_test)
     
     acc = accuracy_score(y_test, y_pred)
-    prec = precision_score(y_test, y_pred, zero_division=0)
-    rec = recall_score(y_test, y_pred, zero_division=0)
-    f1 = f1_score(y_test, y_pred, zero_division=0)
+    prec = precision_score(y_test, y_pred, zero_division=0, average='weighted')
+    rec = recall_score(y_test, y_pred, zero_division=0, average='weighted')
+    f1 = f1_score(y_test, y_pred, zero_division=0, average='weighted')
     
     new_metrics = {
         "accuracy": float(acc),

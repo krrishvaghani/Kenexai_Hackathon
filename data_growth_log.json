@@ -23,5 +23,10 @@
         "timestamp": "2026-03-14T21:30:15.444357",
         "rows_added": 20,
         "table_name": "raw_policy_data"
+    },
+    {
+        "timestamp": "2026-03-14T22:44:02.209580",
+        "rows_added": 4940,
+        "table_name": "raw_policy_data"
     }
 ]

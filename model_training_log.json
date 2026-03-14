@@ -5,5 +5,12 @@
         "dataset_size": 10060,
         "accuracy": 0.7142,
         "model_updated": false
+    },
+    {
+        "timestamp": "2026-03-14 22:44",
+        "model_version": "v5",
+        "dataset_size": 14949,
+        "accuracy": 0.6612,
+        "model_updated": false
     }
 ]
