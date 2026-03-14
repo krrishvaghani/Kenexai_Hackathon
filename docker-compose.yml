@@ -1,0 +1,123 @@
+
+services:
+  # ---------------------------------------------
+  # 1. PostgreSQL Database
+  # ---------------------------------------------
+  postgres:
+    image: postgres:15
+    container_name: insurance_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-insurance_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ai_platform_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------
+  # 2. ChromaDB Vector Database
+  # ---------------------------------------------
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: insurance_chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadata:/chroma/chroma
+    networks:
+      - ai_platform_net
+
+  # ---------------------------------------------
+  # 3. Ollama LLM Service
+  # ---------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: insurance_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollamadata:/root/.ollama
+    networks:
+      - ai_platform_net
+
+  # ---------------------------------------------
+  # 3b. Ollama Automatic Model Puller
+  # ---------------------------------------------
+  ollama-puller:
+    image: ollama/ollama:latest
+    container_name: ollama_model_puller
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - ai_platform_net
+    command: pull llama3-chatqa:8b
+
+  # ---------------------------------------------
+  # 4. Streamlit Dashboard
+  # ---------------------------------------------
+  streamlit_app:
+    build: .
+    container_name: insurance_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+      chromadb:
+        condition: service_started
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-insurance_db}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - ai_platform_net
+
+  # ---------------------------------------------
+  # 5. ETL Pipeline & ML Operations Scheduler
+  # ---------------------------------------------
+  etl_pipeline:
+    build: .
+    container_name: insurance_automation_pipeline
+    command: python pipeline_scheduler.py
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-insurance_db}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - ai_platform_net
+
+volumes:
+  pgdata:
+  chromadata:
+  ollamadata:
+
+networks:
+  ai_platform_net:
+    driver: bridge
