@@ -52,7 +52,7 @@ except Exception as e:
 # SIDEBAR NAVIGATION
 # -------------------------------------------------------------------
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to Page:", ["Data Quality Monitor", "Exploratory Data Analysis", "Business Personas"])
+page = st.sidebar.radio("Go to Page:", ["Data Quality Monitor", "Exploratory Data Analysis", "Business Personas", "Policy Risk Prediction Tool"])
 
 st.sidebar.markdown("---")
 st.sidebar.info("AI-Driven Vehicle Insurance Risk Intelligence Platform")
@@ -368,3 +368,145 @@ elif page == "Business Personas":
                             title="Total Claims Flagged Over Time")
         st.plotly_chart(fig_trend, use_container_width=True)
         
+
+# -------------------------------------------------------------------
+# PAGE 4: POLICY RISK PREDICTION TOOL
+# -------------------------------------------------------------------
+elif page == "Policy Risk Prediction Tool":
+    st.title("Policy Risk Prediction Tool")
+    st.markdown("Use this tool to simulate new policy scenarios and evaluate claim risk before approval. **Real-Time Model Inference powered by Kaggle Dataset.**")
+
+    # Use a Form to make it look professional and avoid recalculating on every single click
+    with st.form("risk_prediction_form"):
+        st.subheader("Client & Vehicle Details")
+        
+        # Structure into 3 clean columns
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("**Driver Profile**")
+            in_age = st.slider("Driver Age", 16, 90, 35)
+            in_gender = st.selectbox("Gender", ["male", "female"])
+            in_exp = st.selectbox("Driving Experience", ["0-9y", "10-19y", "20-29y", "30y+"])
+            in_credit = st.slider("Credit Score", 0.0, 1.0, 0.65)
+
+        with col2:
+            st.markdown("**Driving History**")
+            in_speeding = st.number_input("Speeding Violations", 0, 50, 0)
+            in_duis = st.number_input("DUIs", 0, 10, 0)
+            in_accidents = st.number_input("Past Accidents", 0, 20, 0)
+
+        with col3:
+            st.markdown("**Vehicle & Policy Details**")
+            in_v_age_str = st.selectbox("Vehicle Age", ["< 1 Year", "1-2 Years", "> 2 Years"])
+            in_v_dmg = st.selectbox("Past Vehicle Damage", ["No", "Yes"])
+            in_mileage = st.number_input("Annual Mileage", 1000, 100000, 12000, step=1000)
+            in_premium = st.number_input("Annual Premium ($)", 100, 100000, 1500, step=100)
+            
+        submitted = st.form_submit_button("Predict Risk Score", type="primary", use_container_width=True)
+
+    # Only run the prediction when form is submitted or default first load
+    if submitted or 'first_load' not in st.session_state:
+        st.session_state['first_load'] = False
+        
+        # --- FEATURE ENGINEERING ---
+        if in_age <= 25:
+            cat_age = '16-25'
+        elif in_age <= 39:
+            cat_age = '26-39'
+        elif in_age <= 64:
+            cat_age = '40-64'
+        else:
+            cat_age = '65+'
+
+        v_age_map = {"< 1 Year": 1, "1-2 Years": 2, "> 2 Years": 3}
+        num_v_age = v_age_map[in_v_age_str]
+        num_v_dmg = 1 if in_v_dmg == "Yes" else 0
+
+        d_risk_score = (in_speeding * 2) + (in_duis * 5) + (in_accidents * 3)
+        v_risk_score = num_v_age + num_v_dmg
+        prem_ratio = in_premium / max(1, in_mileage)
+
+        st.markdown("### Engineered Risk Summaries (Normalized 0-100)")
+        
+        # Determine strict constraints based on historical Kaggle Maximums
+        # Driver Risk Max was 65 in real dataset. Vehicle Risk Max was 4.
+        # We scale to 100 strictly for presentation, but keep the raw variables for model precision.
+        ui_driver_risk = min(100, int((d_risk_score / 65) * 100))
+        ui_vehicle_risk = min(100, int((v_risk_score / 4) * 100))
+        
+        mc1, mc2, mc3 = st.columns(3)
+        mc1.metric("Risk Score (Driver)", f"{ui_driver_risk}/100")
+        mc2.metric("Risk Score (Vehicle)", f"{ui_vehicle_risk}/100")
+        mc3.metric("Premium / Mileage Ratio", f"{prem_ratio:.4f}")
+
+        st.markdown("---")
+
+        import joblib
+        import os
+        model_path = os.path.join(os.path.dirname(__file__), "..", "models", "claim_prediction_model.pkl")
+        if os.path.exists(model_path):
+            with st.spinner("Running AI Inference..."):
+                pipeline = joblib.load(model_path)
+
+                input_df = pd.DataFrame([{
+                    "driver_age": cat_age,
+                    "gender": in_gender,
+                    "driving_experience": in_exp,
+                    "vehicle_age": num_v_age,
+                    "annual_mileage": in_mileage,
+                    "credit_score": in_credit,
+                    "vehicle_damage": num_v_dmg,
+                    "annual_premium": in_premium,
+                    "driver_risk_score": d_risk_score,
+                    "vehicle_risk_score": v_risk_score,
+                    "premium_to_mileage_ratio": prem_ratio
+                }])
+
+                pred_class = pipeline.predict(input_df)[0]
+                pred_prob = pipeline.predict_proba(input_df)[0][1] * 100
+
+                st.subheader("AI Prediction Results")
+                r_col1, r_col2 = st.columns(2)
+
+                with r_col1:
+                    risk_label = "High Risk Driver" if pred_class == 1 else "Low Risk Driver"
+                    r_color = "#cc0000" if pred_class == 1 else "#009E73"
+                    icon = "??" if pred_class == 1 else "?"
+
+                    st.markdown(f"<h2 style='color:{r_color};'>{risk_label} {icon}</h2>", unsafe_allow_html=True)
+                    st.markdown(f"**Calculated Claim Probability:** {pred_prob:.1f}%")
+
+                    if pred_prob >= 70:
+                        insight = "Driver shows severely elevated risk. Highly recommend rejecting policy or aggressively scaling up premium."
+                    elif pred_prob >= 50:
+                        insight = "Driver shows elevated risk due to violations or risk profile. Recommend higher premium."
+                    elif pred_prob >= 25:
+                        insight = "Moderate risk detected. Standard pricing strategies apply."
+                    else:
+                        insight = "Minimal risk parameters detected. Ideal candidate for volume capture or loyalty discounts."
+
+                    st.info(f"**Insight:** {insight}")
+
+                with r_col2:
+                    import plotly.graph_objects as go
+                    fig_gauge = go.Figure(go.Indicator(
+                        mode = "gauge+number",
+                        value = pred_prob,
+                        domain = {'x': [0, 1], 'y': [0, 1]},
+                        title = {'text': "Claim Likelihood"},
+                        gauge = {
+                            'axis': {'range': [0, 100]},
+                            'bar': {'color': "darkblue"},
+                            'steps': [
+                                {'range': [0, 30], 'color': "#8fce00"},
+                                {'range': [30, 60], 'color': "#f1c232"},
+                                {'range': [60, 100], 'color': "#cc0000"}
+                            ],
+                            'threshold': {'line': {'color': "black", 'width': 4}, 'thickness': 0.75, 'value': 50}
+                        }
+                    ))
+                    fig_gauge.update_layout(height=260, margin=dict(l=10, r=10, t=40, b=10))
+                    st.plotly_chart(fig_gauge, use_container_width=True)
+        else:
+            st.error("Model file not found! Expected at: " + model_path)
