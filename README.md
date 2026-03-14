@@ -1,4 +1,4 @@
-﻿# AI-Driven Vehicle Insurance Risk Intelligence Platform
+# AI-Driven Vehicle Insurance Risk Intelligence Platform
 
 ## Overview
 The AI-Driven Vehicle Insurance Risk Intelligence Platform is an enterprise-grade, continuous-learning analytics ecosystem. Designed to solve data latency and predictive modeling challenges in the auto insurance industry, this platform integrates data engineering, machine learning, and generative AI into a fully automated, closed-loop system. 
@@ -78,18 +78,13 @@ python run_full_pipeline_update.py --rows 1000
 ### Starting the Automated Scheduler (Production Mode)
 To initialize the continuous learning platform daemon (runs the comprehensive pipeline automatically based on the configured interval):
 ```bash
-python pipeline_scheduler.py
+cd insurance-risk-platform
+python generator/synthetic_generator.py
 ```
 
-## Project Structure
-*   `/dashboard/` - Contains all Streamlit application logic, layout scripts, and role-based views.
-*   `/pipeline/` - Houses the core ETL pipeline processes (Bronze to Silver).
-*   `/models/` - Execution directory for the Scikit-Learn serialized `.pkl` files.
-*   `/genai/` - Manages the ChromaDB vector stores and LangChain ingestion workflows.
-*   `synthetic_data_generator.py` - Simulates incoming production data.
-*   `ml_retraining_pipeline.py` - Handles machine learning operations and performance tracking.
-*   `run_full_pipeline_update.py` - Master orchestrator script bridging all modules.
-*   `pipeline_scheduler.py` - Asynchronous scheduling script for continuous enterprise operation.
+The script will generate one realistic insurance policy record every 3 seconds
+and append it to `data/synthetic_stream.csv`. Press **Ctrl+C** to stop.
 
----
-*Developed for the Kenexai Hackathon.*
+## License
+
+MIT
