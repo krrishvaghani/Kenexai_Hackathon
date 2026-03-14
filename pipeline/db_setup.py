@@ -1,8 +1,19 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_USER = os.getenv("POSTGRES_USER", "postgres")
+DB_PASS = os.getenv("POSTGRES_PASSWORD", "Preet@3753")
+DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+DB_PORT = os.getenv("POSTGRES_PORT", "5432")
+DB_NAME = os.getenv("POSTGRES_DB", "insurance_db")
+
 # Connect to default database to create the new database
-conn = psycopg2.connect(user="postgres", password="Preet@3753", host="localhost", port="5432")
+conn = psycopg2.connect(user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
 conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cursor = conn.cursor()
 try:
@@ -15,7 +26,7 @@ cursor.close()
 conn.close()
 
 # Connect to the newly created database and create tables
-conn = psycopg2.connect(database="insurance_db", user="postgres", password="Preet@3753", host="localhost", port="5432")
+conn = psycopg2.connect(database=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT)
 cursor = conn.cursor()
 
 create_raw_table = """

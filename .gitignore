@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment Variables
+.env
+.env.local
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Data files (Exclude large datasets or credentials)
+*.csv
+# However, if you explicitly want to keep small dummy data:
+!data/synthetic_stream.csv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# Machine Learning models
+*.pkl
+*.h5
+*.pb
+*.onnx
+
+# Docker
+.dockerignore

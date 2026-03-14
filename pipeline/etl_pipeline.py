@@ -1,10 +1,20 @@
 import pandas as pd
 from sqlalchemy import create_engine
 import urllib.parse
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DB_USER = os.getenv("POSTGRES_USER", "postgres")
+DB_PASS = os.getenv("POSTGRES_PASSWORD", "Preet@3753")
+DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+DB_PORT = os.getenv("POSTGRES_PORT", "5432")
+DB_NAME = os.getenv("POSTGRES_DB", "insurance_db")
 
 # DB connection - password has @ so we must URL encode it
-password = urllib.parse.quote_plus("Preet@3753")
-engine = create_engine(f"postgresql://postgres:{password}@localhost:5432/insurance_db")
+password = urllib.parse.quote_plus(DB_PASS)
+engine = create_engine(f"postgresql://{DB_USER}:{password}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
 # define columns based on data
 columns = [
