@@ -62,6 +62,7 @@ with st.sidebar:
             "Data Quality Monitor", 
             "Exploratory Data Analysis", 
             "Business Personas", 
+            "Model Performance Monitoring",
             "Policy Risk Prediction Tool", 
             "Insurance AI Copilot"
         ],
@@ -70,6 +71,7 @@ with st.sidebar:
             "shield-check", 
             "bar-chart-line", 
             "people", 
+            "graph-up-arrow",
             "calculator", 
             "robot"
         ],
@@ -502,6 +504,11 @@ elif page == "Business Personas":
 # -------------------------------------------------------------------
 # PAGE 4: POLICY RISK PREDICTION TOOL
 # -------------------------------------------------------------------
+
+elif page == "Model Performance Monitoring":
+    from model_monitoring import show_model_monitoring
+    show_model_monitoring()
+
 elif page == "Policy Risk Prediction Tool":
     st.title("Policy Risk Prediction Tool")
     st.markdown("Use this tool to simulate new policy scenarios and evaluate claim risk before approval. **Real-Time Model Inference powered by Kaggle Dataset.**")

@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import numpy as np
 import os
 import urllib.parse
@@ -83,7 +83,7 @@ def retrain_model():
         "dataset_size": len(df)
     }
     
-    # Check model registry
+        # Check model registry
     registry_file = "model_registry.json"
     registry = []
     if os.path.exists(registry_file):
@@ -92,38 +92,62 @@ def retrain_model():
                 registry = json.load(f)
             except:
                 pass
-                
-    old_acc = 0.0
-    if registry:
-        old_acc = registry[-1].get("accuracy", 0.0)
-        
-    print(f"New accuracy: {acc:.4f} vs Old accuracy: {old_acc:.4f}")
-    
+
+    best_acc = max([entry.get("accuracy", 0.0) for entry in registry]) if registry else 0.0
+
+    print(f"New accuracy: {acc:.4f} vs Best previous accuracy: {best_acc:.4f}")
+
     model_updated = False
-    
-    if acc > old_acc:
+    version_num = len(registry) + 1
+    model_version = f"v{version_num}"
+
+    if acc > best_acc:
         model_updated = True
         print("Saving new improved model!")
         model_dir = os.path.join(os.path.dirname(__file__), "models")
         os.makedirs(model_dir, exist_ok=True)
-        model_path = os.path.join(model_dir, "claim_prediction_model.pkl")
+        model_path = os.path.join(model_dir, "claim_prediction_model.pkl")      
         joblib.dump(model, model_path)
-        
-        # update registry
-        version = len(registry) + 1
-        new_entry = {
-            "model_version": f"v{version}.0",
-            "training_date": datetime.datetime.now().isoformat(),
-            **new_metrics
-        }
-        registry.append(new_entry)
-        with open(registry_file, "w") as f:
-            json.dump(registry, f, indent=4)
-            
     else:
-        print("New model did not outperform previous model. Discarding.")
-        
+        print("New model did not outperform previous model. Keeping previous model.")       
+
+    # Append to model_registry.json
+    new_entry = {
+        "model_version": model_version,
+        "training_date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "dataset_size": len(df),
+        "accuracy": round(float(acc), 4),
+        "precision": round(float(prec), 4),
+        "recall": round(float(rec), 4),
+        "f1_score": round(float(f1), 4)
+    }
+    registry.append(new_entry)
+    with open(registry_file, "w") as f:
+        json.dump(registry, f, indent=4)
+
+    # Append to model_training_log.json
+    training_log_file = "model_training_log.json"
+    training_log = []
+    if os.path.exists(training_log_file):
+        with open(training_log_file, "r") as f:
+            try:
+                training_log = json.load(f)
+            except:
+                pass
+    
+    log_entry = {
+        "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "model_version": model_version,
+        "dataset_size": len(df),
+        "accuracy": round(float(acc), 4),
+        "model_updated": model_updated
+    }
+    training_log.append(log_entry)
+    with open(training_log_file, "w") as f:
+        json.dump(training_log, f, indent=4)
+
     return model_updated, new_metrics
 
 if __name__ == "__main__":
     retrain_model()
+
