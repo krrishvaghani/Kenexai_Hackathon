@@ -1,0 +1,27 @@
+[
+    {
+        "timestamp": "2026-03-14T19:57:12.582137",
+        "rows_added": 1000,
+        "table_name": "processed_feature_data"
+    },
+    {
+        "timestamp": "2026-03-14T20:00:34.454854",
+        "rows_added": 1000,
+        "table_name": "processed_feature_data"
+    },
+    {
+        "timestamp": "2026-03-14T21:25:10.655137",
+        "rows_added": 10,
+        "table_name": "raw_policy_data"
+    },
+    {
+        "timestamp": "2026-03-14T21:26:09.835983",
+        "rows_added": 10,
+        "table_name": "raw_policy_data"
+    },
+    {
+        "timestamp": "2026-03-14T21:30:15.444357",
+        "rows_added": 20,
+        "table_name": "raw_policy_data"
+    }
+]

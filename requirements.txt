@@ -27,3 +27,5 @@ langchain-community
 chromadb
 langchain-huggingface
 sentence-transformers
+
+streamlit-option-menu==0.3.13

@@ -21,7 +21,7 @@ st.set_page_config(
 # -------------------------------------------------------------------
 # DATABASE CONNECTION & DATA LOADING
 # -------------------------------------------------------------------
-@st.cache_data
+@st.cache_data(ttl=60)
 def load_data():
     """Loads processed feature data from the PostgreSQL warehouse."""
     load_dotenv()
@@ -48,14 +48,49 @@ except Exception as e:
     st.error(f"Error connecting to database: {e}")
     st.stop()
 
+from streamlit_option_menu import option_menu
+
 # -------------------------------------------------------------------
 # SIDEBAR NAVIGATION
 # -------------------------------------------------------------------
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to Page:", ["Data Quality Monitor", "Exploratory Data Analysis", "Business Personas", "Policy Risk Prediction Tool", "Insurance AI Copilot"])
+with st.sidebar:
+    st.title("Navigation")
+    page = option_menu(
+        menu_title=None,
+        options=[
+            "Home Overview", 
+            "Data Quality Monitor", 
+            "Exploratory Data Analysis", 
+            "Business Personas", 
+            "Policy Risk Prediction Tool", 
+            "Insurance AI Copilot"
+        ],
+        icons=[
+            "house", 
+            "shield-check", 
+            "bar-chart-line", 
+            "people", 
+            "calculator", 
+            "robot"
+        ],
+        default_index=0,
+        styles={
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"color": "#ffaa00", "font-size": "18px"},
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#333"},
+            "nav-link-selected": {"background-color": "#1f77b4"},
+        }
+    )
 
 st.sidebar.markdown("---")
 st.sidebar.info("AI-Driven Vehicle Insurance Risk Intelligence Platform")
+
+# -------------------------------------------------------------------
+# PAGE 0: HOME OVERVIEW
+# -------------------------------------------------------------------
+if page == "Home Overview":
+    from home_page import show_home
+    show_home()
 
 # -------------------------------------------------------------------
 # PAGE 1: DATA QUALITY MONITOR

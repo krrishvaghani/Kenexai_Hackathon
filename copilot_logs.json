@@ -118,5 +118,29 @@
             "Driver aged 65+ with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 2 years. Annual mileage is 9000.0 km. The predicted claim probability is 0.67 and the driver belongs to the Low Risk Drivers risk cluster."
         ],
         "llm_response": " Based on the provided data, it can be concluded that older drivers with low or medium risk scores tend to have higher claim probabilities compared to those with high risk scores. Additionally, vehicles in the younger age category and lower mileage appear to correlate with higher claim rates, suggesting a need for closer monitoring of driving habits and vehicle condition."
+    },
+    {
+        "timestamp": "2026-03-14T19:04:14.791266",
+        "user_question": "hi",
+        "retrieved_context": [
+            "Driver aged 26-39 with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 1 years. Annual mileage is 11000.0 km. The predicted claim probability is 0.51 and the driver belongs to the Low Risk Drivers risk cluster.",
+            "Driver aged 26-39 with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 1 years. Annual mileage is 11697.003206900365 km. The predicted claim probability is 0.31 and the driver belongs to the Low Risk Drivers risk cluster.",
+            "Driver aged 26-39 with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 1 years. Annual mileage is 11697.003206900365 km. The predicted claim probability is 0.42 and the driver belongs to the Low Risk Drivers risk cluster.",
+            "Driver aged 26-39 with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 1 years. Annual mileage is 11000.0 km. The predicted claim probability is 0.42 and the driver belongs to the Low Risk Drivers risk cluster.",
+            "Driver aged 26-39 with driving experience of 0-9y has a driver risk score of 0. Vehicle age category is 1 years. Annual mileage is 11697.003206900365 km. The predicted claim probability is 0.37 and the driver belongs to the Low Risk Drivers risk cluster."
+        ],
+        "llm_response": " Hi,"
+    },
+    {
+        "timestamp": "2026-03-14T20:03:32.296492",
+        "user_question": "What factors in our database most strongly indicate that an insurance policy should be rejected or priced at a severe premium?",
+        "retrieved_context": [
+            "driver_age: 40-64 gender: male driving_experience: 20-29y vehicle_age: 2 annual_mileage: 13812.919360788053 credit_score: 0.7302822020428139 vehicle_damage: 0 annual_premium: 30217.114781536384 driver_risk_score: 2 vehicle_risk_score: 3 premium_to_mileage_ratio: 4.187372097582955 claim_outcome: 1",
+            "driver_age: 40-64 gender: male driving_experience: 20-29y vehicle_age: 2 annual_mileage: 13812.919360788053 credit_score: 0.7302822020428139 vehicle_damage: 0 annual_premium: 30217.114781536384 driver_risk_score: 2 vehicle_risk_score: 3 premium_to_mileage_ratio: 4.187372097582955 claim_outcome: 1",
+            "driver_age: 65+ gender: female driving_experience: 0-9y vehicle_age: 2 annual_mileage: 7000.0 credit_score: 0.6563498838978089 vehicle_damage: 1 annual_premium: 2630.0 driver_risk_score: 0 vehicle_risk_score: 3 premium_to_mileage_ratio: 0.3757142857142857 claim_outcome: 0",
+            "driver_age: 65+ gender: female driving_experience: 0-9y vehicle_age: 2 annual_mileage: 7000.0 credit_score: 0.6563498838978089 vehicle_damage: 1 annual_premium: 2630.0 driver_risk_score: 0 vehicle_risk_score: 3 premium_to_mileage_ratio: 0.3757142857142857 claim_outcome: 0",
+            "driver_age: 40-64 gender: male driving_experience: 0-9y vehicle_age: 2 annual_mileage: 12000.0 credit_score: 0.6488951900742446 vehicle_damage: 1 annual_premium: 27440.0 driver_risk_score: 0 vehicle_risk_score: 3 premium_to_mileage_ratio: 2.2866666666666666 claim_outcome: 1"
+        ],
+        "llm_response": " The key indicators for rejecting or severely pricing an insurance policy can be summarized as follows:\n- High vehicle damage risk score\n- Low credit score\n- Higher annual premium\n- Lower mileage ratio\n\nIn these cases, the combined risk factors indicate a higher likelihood of financial loss to both insurer and insured."
     }
 ]
