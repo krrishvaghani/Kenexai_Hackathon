@@ -43,5 +43,23 @@
         "precision": 0.655,
         "recall": 0.6612,
         "f1_score": 0.6489
+    },
+    {
+        "model_version": "v6",
+        "training_date": "2026-03-15 08:13",
+        "dataset_size": 14958,
+        "accuracy": 0.6541,
+        "precision": 0.6469,
+        "recall": 0.6541,
+        "f1_score": 0.6439
+    },
+    {
+        "model_version": "v7",
+        "training_date": "2026-03-15 08:15",
+        "dataset_size": 14968,
+        "accuracy": 0.6653,
+        "precision": 0.6559,
+        "recall": 0.6653,
+        "f1_score": 0.6548
     }
 ]

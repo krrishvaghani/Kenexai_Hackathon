@@ -72,3 +72,10 @@ def run_orchestrator(n_rows: int = 1000):
     print("="*60)
     
     return log_entry
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Trigger Enterprise Medallion Pipeline Update.")
+    parser.add_argument("--rows", type=int, default=1000, help="Number of synthetic rows to generate.")
+    args = parser.parse_args()
+    run_orchestrator(n_rows=args.rows)
